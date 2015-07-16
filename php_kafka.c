@@ -22,22 +22,25 @@
 #endif
 
 #include <php.h>
-#include <php_kafka.h>
+#include "php_kafka.h"
 #include "kafka.h"
 #include "zend_exceptions.h"
 #include "zend_hash.h"
 #include <zlib.h>
 #include <ctype.h>
 
+// #define LONG long
+// #define STRING std::string
+
 #ifdef COMPILE_DL_KAFKA
 ZEND_GET_MODULE(kafka)
 #endif
 #define REGISTER_KAFKA_CLASS_CONST_STRING(ce, name, value) \
-    zend_declare_class_constant_stringl(ce, name, sizeof(name)-1, value, sizeof(value)-1)
+    zend_declare_class_constant_stringl(ce, name, sizeof(name)-1, value, sizeof(value)-1 TSRMLS_DC)
 #define REGISTER_KAFKA_CLASS_CONST_LONG(ce, name, value) \
-    zend_declare_class_constant_long(ce, name, sizeof(name)-1, value)
-#define REGISTER_KAFKA_CLASS_CONST(ce, c_name, type) \
-    REGISTER_KAFKA_CLASS_CONST_ ## type(ce, #c_name, PHP_KAFKA_ ## c_name)
+    zend_declare_class_constant_long(ce, name, sizeof(name)-1, value TSRMLS_DC)
+// #define REGISTER_KAFKA_CLASS_CONST(ce, c_name, type) \
+//     zend_declare_class_constant(ce, c_name, sizeof(type) TSRMLS_DC)
 #ifndef BASE_EXCEPTION
 #if (PHP_MAJOR_VERSION < 5) || ( ( PHP_MAJOR_VERSION == 5 ) && (PHP_MINOR_VERSION < 2) )
 #define BASE_EXCEPTION zend_exception_get_default()
@@ -168,31 +171,31 @@ PHP_MINIT_FUNCTION(kafka)
     kafka_ce->create_object = create_kafka_connection;
     kafka_ce->ce_flags |= ZEND_ACC_FINAL_CLASS;
     //offset constants (consume)
-    REGISTER_KAFKA_CLASS_CONST(kafka_ce, OFFSET_BEGIN, STRING);
-    REGISTER_KAFKA_CLASS_CONST(kafka_ce, OFFSET_END, STRING);
+    REGISTER_KAFKA_CLASS_CONST_STRING(kafka_ce, "OFFSET_BEGIN", PHP_KAFKA_OFFSET_BEGIN);
+    REGISTER_KAFKA_CLASS_CONST_STRING(kafka_ce, "OFFSET_END", PHP_KAFKA_OFFSET_END);
     //compression mode constants
-    REGISTER_KAFKA_CLASS_CONST(kafka_ce, COMPRESSION_NONE, STRING);
-    REGISTER_KAFKA_CLASS_CONST(kafka_ce, COMPRESSION_GZIP, STRING);
-    REGISTER_KAFKA_CLASS_CONST(kafka_ce, COMPRESSION_SNAPPY, STRING);
+    REGISTER_KAFKA_CLASS_CONST_STRING(kafka_ce, "COMPRESSION_NONE", PHP_KAFKA_COMPRESSION_NONE);
+    REGISTER_KAFKA_CLASS_CONST_STRING(kafka_ce, "COMPRESSION_GZIP", PHP_KAFKA_COMPRESSION_GZIP);
+    REGISTER_KAFKA_CLASS_CONST_STRING(kafka_ce, "COMPRESSION_SNAPPY", PHP_KAFKA_COMPRESSION_SNAPPY);
     //global log-mode constants TODO: refactor to ERRMODE constants
-    REGISTER_KAFKA_CLASS_CONST(kafka_ce, LOG_ON, LONG);
-    REGISTER_KAFKA_CLASS_CONST(kafka_ce, LOG_OFF, LONG);
+    REGISTER_KAFKA_CLASS_CONST_LONG(kafka_ce, "LOG_ON", PHP_KAFKA_LOG_ON);
+    REGISTER_KAFKA_CLASS_CONST_LONG(kafka_ce, "LOG_OFF", PHP_KAFKA_LOG_OFF);
     //connection mode constants
-    REGISTER_KAFKA_CLASS_CONST(kafka_ce, MODE_CONSUMER, LONG);
-    REGISTER_KAFKA_CLASS_CONST(kafka_ce, MODE_PRODUCER, LONG);
+    REGISTER_KAFKA_CLASS_CONST_LONG(kafka_ce, "MODE_CONSUMER", PHP_KAFKA_MODE_CONSUMER);
+    REGISTER_KAFKA_CLASS_CONST_LONG(kafka_ce, "MODE_PRODUCER", PHP_KAFKA_MODE_PRODUCER);
     //random partition constant
-    REGISTER_KAFKA_CLASS_CONST(kafka_ce, PARTITION_RANDOM, LONG);
+    REGISTER_KAFKA_CLASS_CONST_LONG(kafka_ce, "PARTITION_RANDOM", PHP_KAFKA_PARTITION_RANDOM);
     //config constants:
-    REGISTER_KAFKA_CLASS_CONST(kafka_ce, RETRY_COUNT, LONG);
-    REGISTER_KAFKA_CLASS_CONST(kafka_ce, RETRY_INTERVAL, LONG);
-    REGISTER_KAFKA_CLASS_CONST(kafka_ce, CONFIRM_DELIVERY, LONG);
-    REGISTER_KAFKA_CLASS_CONST(kafka_ce, QUEUE_BUFFER_SIZE, LONG);
-    REGISTER_KAFKA_CLASS_CONST(kafka_ce, COMPRESSION_MODE, LONG);
-    REGISTER_KAFKA_CLASS_CONST(kafka_ce, LOGLEVEL, LONG);
+    REGISTER_KAFKA_CLASS_CONST_LONG(kafka_ce, "RETRY_COUNT", PHP_KAFKA_RETRY_COUNT);
+    REGISTER_KAFKA_CLASS_CONST_LONG(kafka_ce, "RETRY_INTERVAL", PHP_KAFKA_RETRY_INTERVAL);
+    REGISTER_KAFKA_CLASS_CONST_LONG(kafka_ce, "CONFIRM_DELIVERY", PHP_KAFKA_CONFIRM_DELIVERY);
+    REGISTER_KAFKA_CLASS_CONST_LONG(kafka_ce, "QUEUE_BUFFER_SIZE", PHP_KAFKA_QUEUE_BUFFER_SIZE);
+    REGISTER_KAFKA_CLASS_CONST_LONG(kafka_ce, "COMPRESSION_MODE", PHP_KAFKA_COMPRESSION_MODE);
+    REGISTER_KAFKA_CLASS_CONST_LONG(kafka_ce, "LOGLEVEL", PHP_KAFKA_LOGLEVEL);
     //confirmation value constants
-    REGISTER_KAFKA_CLASS_CONST(kafka_ce, CONFIRM_OFF, LONG);
-    REGISTER_KAFKA_CLASS_CONST(kafka_ce, CONFIRM_BASIC, LONG);
-    REGISTER_KAFKA_CLASS_CONST(kafka_ce, CONFIRM_EXTENDED, LONG);
+    REGISTER_KAFKA_CLASS_CONST_LONG(kafka_ce, "CONFIRM_OFF", PHP_KAFKA_CONFIRM_OFF);
+    REGISTER_KAFKA_CLASS_CONST_LONG(kafka_ce, "CONFIRM_BASIC", PHP_KAFKA_CONFIRM_BASIC);
+    REGISTER_KAFKA_CLASS_CONST_LONG(kafka_ce, "CONFIRM_EXTENDED", PHP_KAFKA_CONFIRM_EXTENDED);
     return SUCCESS;
 }
 

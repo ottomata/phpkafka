@@ -18,7 +18,7 @@
  */
 #include <php.h>
 #include "kafka.h"
-#include <php_kafka.h>
+#include "php_kafka.h"
 #include <inttypes.h>
 #include <ctype.h>
 #include <string.h>
@@ -70,7 +70,7 @@ void kafka_set_log_level( int ll )
 
 void kafka_msg_delivered (rd_kafka_t *rk,
                            void *payload, size_t len,
-                           int error_code,
+                           rd_kafka_resp_err_t error_code,
                            void *opaque, void *msg_opaque)
 {
     if (error_code && log_level) {
@@ -80,7 +80,7 @@ void kafka_msg_delivered (rd_kafka_t *rk,
     }
 }
 
-void kafka_err_cb (rd_kafka_t *rk, int err, const char *reason, void *opaque)
+void kafka_err_cb (rd_kafka_t *rk, rd_kafka_resp_err_t err, const char *reason, void *opaque)
 {
     if (log_level) {
         openlog("phpkafka", 0, LOG_USER);
@@ -91,7 +91,7 @@ void kafka_err_cb (rd_kafka_t *rk, int err, const char *reason, void *opaque)
         rd_kafka_destroy(rk);
 }
 
-void kafka_produce_cb_simple(rd_kafka_t *rk, void *payload, size_t len, int err_code, void *opaque, void *msg_opaque)
+void kafka_produce_cb_simple(rd_kafka_t *rk, void *payload, size_t len, rd_kafka_resp_err_t err_code, void *opaque, produce_cb_params *msg_opaque)
 {
     struct produce_cb_params *params = msg_opaque;
     if (params)
@@ -110,7 +110,7 @@ void kafka_produce_cb_simple(rd_kafka_t *rk, void *payload, size_t len, int err_
     }
 }
 
-void kafka_produce_detailed_cb(rd_kafka_t *rk, const rd_kafka_message_t *msg, void *opaque)
+void kafka_produce_detailed_cb(rd_kafka_t *rk, const rd_kafka_message_t *msg, produce_cb_params *opaque)
 {
     struct produce_cb_params *params = opaque;
     if (params)
